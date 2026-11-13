@@ -17,10 +17,11 @@ class _HomeViewState extends State<HomeView> {
     return AppFrame(
       child: Scaffold(
         backgroundColor: AppColors.cream,
-        body: SafeArea(
-          child: Column(
-            children: [
-              Padding(
+        body: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -31,25 +32,24 @@ class _HomeViewState extends State<HomeView> {
                     const SizedBox(height: 16),
                     _PromoCard(),
                     const SizedBox(height: 24),
-                    _CategoriesSection(),
-                    const SizedBox(height: 24),
                   ],
                 ),
               ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      _PopularSection(onRestaurantTap: widget.onRestaurantTap),
-                      const SizedBox(height: 24),
-                      _OrderAgainSection(),
-                      const SizedBox(height: 100),
-                    ],
-                  ),
-                ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _CategoriesSection(),
               ),
-            ],
-          ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            SliverToBoxAdapter(
+              child: _PopularSection(onRestaurantTap: widget.onRestaurantTap),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            SliverToBoxAdapter(child: _OrderAgainSection()),
+            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          ],
         ),
         bottomNavigationBar: _BottomNav(),
       ),
@@ -160,7 +160,7 @@ class _PromoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 110,
+      height: 135,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [AppColors.orange, Color(0xFFFF8C5A)],
@@ -172,44 +172,49 @@ class _PromoCard extends StatelessWidget {
       child: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    'FIRST ORDER',
-                    style: AppText.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                      letterSpacing: 0.5,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        'FIRST ORDER',
+                        style: AppText.inter(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '30% off\nfirst order',
+                      style: AppText.inter(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        height: 1.2,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  '30% off your\nfirst order',
-                  style: AppText.inter(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                    height: 1.2,
-                  ),
-                ),
-                const Spacer(),
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
-                    vertical: 6,
+                    vertical: 5,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -218,7 +223,7 @@ class _PromoCard extends StatelessWidget {
                   child: Text(
                     'Use code MUNCH30',
                     style: AppText.inter(
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: AppColors.ink,
                     ),
@@ -279,9 +284,12 @@ class _CategoriesSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
+        SizedBox(
+          height: 100,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            padding: EdgeInsets.zero,
             children: [
               _CategoryItem('Pizza', 'assets/photo-margherita.png'),
               _CategoryItem('Burgers', 'assets/photo-bowl.png'),
@@ -349,11 +357,11 @@ class _PopularSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: [
-          Row(
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
@@ -374,35 +382,47 @@ class _PopularSection extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          SingleChildScrollView(
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 280,
+          child: ListView(
             scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _RestaurantCard(
-                  name: 'Napoli Street Pizza',
-                  rating: '4.8',
-                  time: '25-35 min',
-                  delivery: '£1.49 delivery',
-                  category: 'Italian',
-                  image: 'assets/photo-margherita.png',
-                  discount: '20% OFF',
-                  onTap: onRestaurantTap,
-                ),
-                _RestaurantCard(
-                  name: 'Burger Barn',
-                  rating: '4.6',
-                  time: '15-25 min',
-                  delivery: 'Free delivery',
-                  category: 'American',
-                  image: 'assets/photo-bowl.png',
-                  onTap: onRestaurantTap,
-                ),
-              ],
-            ),
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            children: [
+              _RestaurantCard(
+                name: 'Napoli Street Pizza',
+                rating: '4.8',
+                time: '25-35 min',
+                delivery: '£1.49 delivery',
+                category: 'Italian',
+                image: 'assets/photo-margherita.png',
+                discount: '20% OFF',
+                onTap: onRestaurantTap,
+              ),
+              _RestaurantCard(
+                name: 'Burger Barn',
+                rating: '4.6',
+                time: '15-25 min',
+                delivery: 'Free delivery',
+                category: 'American',
+                image: 'assets/photo-bowl.png',
+                onTap: onRestaurantTap,
+              ),
+              _RestaurantCard(
+                name: 'Sushi Master',
+                rating: '4.9',
+                time: '30-40 min',
+                delivery: '£2.49 delivery',
+                category: 'Japanese',
+                image: 'assets/photo-sushi.png',
+                onTap: onRestaurantTap,
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -433,31 +453,34 @@ class _RestaurantCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 180,
+        width: 100,
         margin: const EdgeInsets.only(right: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Stack(
               children: [
-                Container(
-                  height: 140,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
+                Hero(
+                  tag: name,
+                  child: Container(
+                    height: 160,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.08),
+                          blurRadius: 20,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.asset(
+                        image,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
                       ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Image.asset(
-                      image,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
                     ),
                   ),
                 ),
@@ -467,12 +490,12 @@ class _RestaurantCard extends StatelessWidget {
                     left: 12,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
+                        horizontal: 10,
+                        vertical: 5,
                       ),
                       decoration: BoxDecoration(
                         color: AppColors.orange,
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         discount!,
@@ -488,11 +511,17 @@ class _RestaurantCard extends StatelessWidget {
                   top: 12,
                   right: 12,
                   child: Container(
-                    width: 32,
-                    height: 32,
+                    width: 36,
+                    height: 36,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 8,
+                        ),
+                      ],
                     ),
                     child: Icon(
                       Icons.favorite_border,
@@ -514,7 +543,7 @@ class _RestaurantCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Row(
               children: [
                 Icon(Icons.star, size: 14, color: Color(0xFFF5A623)),
@@ -530,18 +559,24 @@ class _RestaurantCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Icon(Icons.access_time, size: 14, color: AppColors.muted),
                 const SizedBox(width: 4),
-                Text(
-                  time,
-                  style: AppText.inter(fontSize: 13, color: AppColors.muted),
+                Expanded(
+                  child: Text(
+                    time,
+                    style: AppText.inter(fontSize: 13, color: AppColors.muted),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 4),
             Row(
               children: [
-                Text(
-                  delivery,
-                  style: AppText.inter(fontSize: 13, color: AppColors.muted),
+                Expanded(
+                  child: Text(
+                    delivery,
+                    style: AppText.inter(fontSize: 13, color: AppColors.muted),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 Text(
                   ' · ',
